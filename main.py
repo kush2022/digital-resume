@@ -1,48 +1,43 @@
-from pathlib import Path
-
 import streamlit as st 
+from pathlib import Path
 from PIL import Image
+from streamlit_lottie import st_lottie
+import json
+import requests
 
 
-# ------PATH SETTINGS -----------
+# -----PATH SETTINGS----
 current_dir = Path(__file__).parent if "__file__" in locals() else Path.cwd()
-resume_file = current_dir / 'assests'/'Felix Kuria Resume.pdf'
-profile_pic = current_dir / 'assests'/'profile-pic.png'
-css_file = current_dir / 'styles'/'main.css'
+profile_pic = current_dir /"assests"/"profile-pic.png"
+css_file = current_dir / 'styles'/'style.css'
+coding = "https://assets10.lottiefiles.com/packages/lf20_mXdqmT1SH2.json"
+data_analysis = "https://assets5.lottiefiles.com/packages/lf20_49rdyysj.json"
+email= "https://assets9.lottiefiles.com/packages/lf20_asqchqyq.json"
+resume_file = current_dir/'assets'/'felix-resume.pdf'
 
 
-# --------- GENERAL SETTINGS ---------
-
-PAGE_TITLE = 'Digital CV | Felix Kuria'
-NAME = 'Felix Kuria'
-PAGE_ICON = ":wave:"
-DESCRIPTION = """
-Senior Data Analyst, assisting enterprises by supporting data-driven decision-making.
-"""
-EMAIL = 'felixkuria12@gmail.com'
-
-SOCIAL_MEDIA = {
-    "LinkedIn": "https://www.linkedin.com/in/felix-kuria/",
-    "GitHub": "https://github.com/kush2022",
-    "WhatsApp": "+254710702286"
-}
-
-PROJECTS = {
-
-}
-
-
-# -------Code---
+# -------- PAGE CONFIG -------------
 
 st.set_page_config(
-    page_icon=PAGE_ICON,
-    page_title=PAGE_TITLE,
-    layout='centered'
+    page_title="Felix Kuria",
+    page_icon=":tada:",
+    layout="wide"
 )
+# --------- LOADING ASSETS----------
+@st.cache_data
+def load_lottieurl(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+coding = load_lottieurl(coding)
+data_analysis = load_lottieurl(data_analysis)
+email = load_lottieurl(email)
 
 
-# ----- LOADING CSS --- 
-
+# -----CSS FILE ------
+@st.cache_data
 def load_css(file_path):
     with open(file_path) as f:
         css = f.read()
@@ -50,20 +45,40 @@ def load_css(file_path):
 css = load_css(css_file)
 st.markdown(css, unsafe_allow_html=True)
 
+# -----RESUME DOWNLOAD ---
 with open(resume_file, 'rb') as pdf_file:
     PDFbyte = pdf_file.read()
+
+
+# ----------VARIABLES
+DESCRIPTION = """ 
+Welcome to my portfolio! I am a highly skilled 
+and versatile professional with a strong background in 
+backend development and data analysis. With expertise in 
+both fields, I bring a unique blend of technical prowess and 
+analytical acumen to solve complex problems 
+and drive impactful results.
+"""
+
+SOCIAL_MEDIA = {
+    "LinkedIn": "https://www.linkedin.com/in/felix-kuria/",
+    "GitHub": "https://github.com/kush2022",
+    "WhatsApp": "https://wa.me/message/TOOBYKO2VINOH1",
+}
+
+
+
+
+#-------HERO SECTION -----
+col1, col2 = st.columns((1,2), gap='small')
 profile_pic = Image.open(profile_pic)
-
-
-#----- HERO SECTION ----------
-col1, col2 = st.columns(2, gap="small")
-
 with col1:
-    st.image(profile_pic, width=200)
+    st.image(profile_pic, width=270)
 
 
 with col2:
-    st.title(NAME)
+    st.subheader("Hi, I am Felix Kuria :wave:")
+    st.markdown("## Back-end Developer | Data Analyst")
     st.write(DESCRIPTION)
     st.download_button(
         label="Download Resume",
@@ -71,80 +86,73 @@ with col2:
         file_name=resume_file.name,
         mime="application/octet-stream"
     )
-    st.write(":email:", EMAIL)
+    st.write(':email:', 'felixkuria12@gmail.com')
+    cols = st.columns(len(SOCIAL_MEDIA))
+    for index, (platform, link) in enumerate(SOCIAL_MEDIA.items()):
+        cols[index].write(f"[{platform}]({link})")
 
 
-# ------- SOCIAL LINKS -------
-st.write("#")
-cols = st.columns(len(SOCIAL_MEDIA))
-for index, (plaform, link) in enumerate(SOCIAL_MEDIA.items()):
-    cols[index].write(f"[{plaform}]({link})")
+# --------WHAT I DO ----------
+with st.container():
+    st.divider()
+
+    left_column, right_column = st.columns(2, gap='small')
+    with left_column:
+        st.title("What I Do")
+        st.markdown("#### *Back-end Development*")
+        st.write(
+            """
+            - Design and develop scalable backend solutions using Python, Django, and FastAPI.
+            - Create secure and efficient APIs to power web and mobile applications.
+            - Optimize database performance, ensuring data integrity and high availability.
+            - Implement authentication and authorization systems to protect sensitive data.
+            - Collaborate with frontend developers to seamlessly integrate backend functionality.
+            - Database design & management (PostgreSQL, MySQL, MongoDB)
+            - DevOps (Docker, Slack, Git, GitHub)
+
+            """
+        )
+
+        with right_column:
+            st_lottie(coding, height=300)
+
+with st.container():
+    st.divider()
+
+    left_column, right_column = st.columns(2)
+    with left_column:
+        st.markdown("#### *Data Analysis*")
+        st.write(
+            """
+            - Clean, transform, and analyze complex datasets to uncover valuable insights.
+            - Apply statistical analysis techniques to identify patterns and trends.
+            - Utilize machine learning algorithms for predictive modeling and decision-making.
+            - Visualize data using charts, graphs, and interactive dashboards for effective communication.
+            - Provide actionable recommendations based on data-driven insights.
+            """
+        )
+
+    with right_column:
+        st_lottie(data_analysis, height=250)
 
 
-# ----EXPERIENCE & QUALIFICATIONS--------
-st.empty()
-st.subheader('Experience & Qualification')
-st.write(
+
+# ------- CONTACT FORM -----
+with st.container():
+    st.divider()
+    st.header("Get In Touch With Me! ")
+    st.empty()
+    contact_form = """
+    <form action="https://formsubmit.co/felixkuria12@gmail.com" method="POST">
+     <input type="hidden" name="_capture" value="false">
+     <input type="text" name="name" placeholder="Your name" required>
+     <input type="email" name="email" placeholder="Your email" required>
+     <textarea name="message" placeholder="Your message here..." required></textarea>
+     <button type="submit">Send</button>    
+    </form>
     """
-    - Designed and developed scalable and efficient software solutions using programming languages such as Python, Java, and C++.
-    - Integrated software applications with external systems and APIs to enhance functionality and data exchange.
-    - Presented findings and recommendations to stakeholders and provided data-driven insights for process improvements.
-    - Collaborated with cross-functional teams to define key performance indicators (KPIs) and create dashboards for monitoring business metrics.
-    """
-)
-
-# ---SKILLS ----------
-st.empty()
-st.subheader("Hard Skills")
-st.write(
-    """
-    - Data analysis and interpretation
-    - Data visualization
-    - SQL and database management
-    - Data cleansing and preprocessing
-    - Software development methodologies (Agile, Scrum)
-    - Web development frameworks (e.g., Django, Flask)
-
-    """
-)
-
-
-# -----WORK HISTORY ---------
-st.empty()
-st.subheader("Work Experience")
-st.divider()
-
-# job1
-st.write("Back-end Developer | **BlackBox Flight Data Limited**")
-st.write("2022-2023")
-st.write(
-    """
-- ● Collaborated with a team to create a web application with the use
-of the Django framework
-- ● My responsibilities included working on the database design and
-implementation using both SQL and NoSQL databases
-- ● In order to maintain version control and work alongside my
-teammates, I utilized Git
-- ● Additionally, I actively participated in code reviews and testing to
-guarantee the application's high quality.
-- ● Managed efficient SQL queries and data transport.
-- ● Troubleshooted and tested software and debugged to clean up code
-and improve efficiency.
-    """
-)
-
-# job2
-st.empty()
-st.divider()
-st.write("Teaching Assistance | **St.Joseph's High School**")
-st.write("2018-2019")
-st.write(
-    """
-- ● Tutored struggling students individually and in small groups to
-reinforce learning concepts.
-- ● Supported classroom activities, tutoring, and reviewing work.
-- ● Assisted teachers with classroom management and document
-coordination to maintain a positive learning environment.
-    """
-)
-
+    left_column, right_column = st.columns(2)
+    with right_column:
+        st.markdown(contact_form, unsafe_allow_html=True)
+    with left_column:
+        st_lottie(email, height=250)
